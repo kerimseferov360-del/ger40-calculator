@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GER40 Stop Kalkulyatoru</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:20px;background:#f5f5f5;color:#111}
+.card{background:white;border-radius:16px;padding:20px;box-shadow:0 2px 12px #0001}
+h1{font-size:24px;margin-top:0}
+label{display:block;font-weight:700;margin:16px 0 7px}
+input{width:100%;box-sizing:border-box;padding:13px;font-size:18px;border:1px solid #bbb;border-radius:10px}
+button{width:100%;margin-top:18px;padding:14px;font-size:18px;font-weight:700;border:0;border-radius:10px;background:#111;color:white}
+.result{margin-top:20px;padding:16px;border-radius:12px;background:#eee;line-height:1.6}
+.big{font-size:25px;font-weight:800}
+.small{color:#555}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>GER40 Stop Kalkulyatoru</h1>
+<p class="small">Maksimum zərəri keçmədən cədvəldəki ən yaxın $/point dəyərini seçir.</p>
+
+<label>Stop — point</label>
+<input id="stop" type="number" step="0.01" min="0" placeholder="Məs: 20">
+
+<label>Maksimum zərər — $</label>
+<input id="risk" type="number" step="0.01" min="0" placeholder="Məs: 50">
+
+<button onclick="calc()">Hesabla</button>
+<div id="out" class="result" style="display:none"></div>
+</div>
+
+<script>
+const table = {1: 0.11, 2: 0.23, 3: 0.35, 4: 0.46, 5: 0.58, 6: 0.69, 7: 0.81, 8: 0.93, 9: 1.04, 10: 1.16, 11: 1.27, 12: 1.39, 13: 1.5, 14: 1.62, 15: 1.74, 16: 1.85, 17: 1.97, 18: 2.08, 19: 2.2, 20: 2.31, 21: 2.43, 22: 2.55, 23: 2.66, 24: 2.78, 25: 2.89, 26: 3.01, 27: 3.12, 28: 3.24, 29: 3.35, 30: 3.47, 31: 3.59, 32: 3.7, 33: 3.82, 34: 3.94, 35: 4.05, 36: 4.17};
+function calc(){
+  const stop=Number(document.getElementById('stop').value);
+  const risk=Number(document.getElementById('risk').value);
+  const out=document.getElementById('out');
+  if(!(stop>0) || !(risk>0)){out.style.display='block';out.innerHTML='Stop və maksimum zərər məbləğini yaz.';return;}
+  const wanted=risk/stop;
+  let best=null;
+  for(const [x,v] of Object.entries(table)){
+    const n=Number(x), val=Number(v);
+    const loss=stop*val;
+    if(loss<=risk+1e-9 && (!best || val>best.val)) best={x:n,val:val,loss:loss};
+  }
+  out.style.display='block';
+  if(!best){
+    out.innerHTML='<div class="big">Uyğun dəyər yoxdur</div><div>Bu stop üçün cədvəldəki ən kiçik $/point belə maksimum zərəri keçir.</div>';
+    return;
+  }
+  out.innerHTML =
+    '<div class="big">Seçiləcək: '+best.x+'</div>'+
+    '<div><b>$/point:</b> $'+best.val.toFixed(2)+'</div>'+
+    '<div><b>Stop:</b> '+stop+' point</div>'+
+    '<div><b>Real maksimum zərər:</b> $'+best.loss.toFixed(2)+'</div>'+
+    '<hr>'+
+    '<div class="small">Hesablanan tələb: $'+wanted.toFixed(2)+'/point<br>'+
+    'Seçim maksimum zərəri keçməyən ən yaxın aşağı dəyərdir.</div>';
+}
+</script>
+</body>
+</html>
